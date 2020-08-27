@@ -1,8 +1,12 @@
 var express = require('express');
 var mime = require('mime')
 var fs = require('fs')
+var bodyParser = require('body-parser')
+
 
 var app = express();
+app.use(bodyParser.json());
+
 app.get('/', function(req, res) {
     res.send('Hello World');
 })
@@ -23,6 +27,41 @@ app.get('/users/:id', function(req, res) {
 })
 
 
+app.post('/users', function(req, res) {
+    var params = req.body;
+    console.log(params);
+
+    fs.readFile(__dirname + "/" + "data.json", 'utf8', function(err, data) {
+        var users = JSON.parse(data);
+        users['user' + params.id] = params
+        console.log(users)
+        fs.writeFile(__dirname + "/" + "data.json", JSON.stringify(users), (err) => {});
+    });
+
+    res.end("response from Post ")
+})
+
+app.put('/users/:id', function(req, res) {
+    var params = req.body;
+    console.log(params);
+
+    fs.readFile(__dirname + "/" + "data.json", 'utf8', function(err, data) {
+        var users = JSON.parse(data);
+        users['user' + params.id] = params
+        fs.writeFile(__dirname + "/" + "data.json", JSON.stringify(users), (err) => {});
+        res.end(JSON.stringify(users));
+    });
+})
+
+app.delete('/users/:id', function(req, res) {
+    userId = req.params.id
+    fs.readFile(__dirname + "/" + "data.json", 'utf8', function(err, data) {
+        var users = JSON.parse(data);
+        delete users['user' + userId]
+        fs.writeFile(__dirname + "/" + "data.json", JSON.stringify(users), (err) => {});
+        res.end(JSON.stringify(users));
+    });
+})
 
 app.listen(8081, function() {
     console.log(" Express server ins listening on port 8081")
